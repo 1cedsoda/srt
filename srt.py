@@ -275,6 +275,6 @@ class Translator:
         self.buildfile()
 
 if __name__ == "__main__":
-    tl = Translator(file="ccc.srt")
+    tl = Translator()
     print(tl)
     tl.run()
