@@ -9,7 +9,6 @@ import time
 class Translator:
 
 
-
     def __isFile(self, object=None):
         if object == None:
             object = self.file
@@ -55,16 +54,18 @@ class Translator:
             self.file = None
             return False
 
-    def __init__(self, dir=None, file=None):
+    def __init__(self, dir=None, thefile=None):
         # define directory and automaticly fill if possible
-        if dir == None: self.autodir()
-        else: self.dir = str(dir)
+        if dir == None:
+            self.autodir()
+        else:
+            self.dir = str(dir)
 
         # define file and automaticly fill if possible
-        if file == None:
+        if thefile == None:
             self.autofile()
         else:
-            self.file = str(file)
+            self.file = str(thefile)
 
         # define other
         self.filecontent = []
@@ -201,10 +202,9 @@ class Translator:
                     thread = threading.Thread(target=self.translation_executor, args=((sentence, lines),))
                     thread.start()
                     time.sleep(self.threadtime) # change this to a higher value if you get a "TranslationError DeepL call resulted in a unknown result." and wait some time to retry.
-                    if i == len(interpreted) + 1:
-                        thread.join()
                     sentence = ""
                     lines = json.loads('{}')
+        thread.join()
 
     def translation_executor(self, datatuple):
         sentence = datatuple[0]
@@ -266,7 +266,7 @@ class Translator:
 
     def run(self):
         good, error = self._check()
-        if not good: #izzzz nisch gut
+        if not good:
             return error
         self.readfile()
         self.interprete()
@@ -274,7 +274,119 @@ class Translator:
         self.translate()
         self.buildfile()
 
+    def printProperties(self):
+        print("Selected properties:")
+        print("    directory:", self.dir)
+        print("    file:", self.file)
+        print("    translate from:", self.fromlang)
+        print("    translate to:", self.tolang)
+
+    def printCommands(self):
+        print("Commands:")
+        print("    autodir         - select the workdirectory")
+        print("    dir <dir>       - select another path")
+        print("    autofile        - select automaticly a .srt file from the selected path")
+        print("    file <filename> - select a .srt file from the selected path")
+        print("    fromlang <lang> - choose a the language of the file.")
+        print("    tolang <lang>   - choose a the language of the file.")
+        print("    show            - show all properties")
+        print("    langs           - show all languages")
+        print("    run             - start the translation")
+
+    def printLanguages(self):
+        print("Available languages:")
+        print("    DE, EN, FR, ES, IT, NL, PL")
+        print("    You can also choose \"auto\" for the base language.")
+
 if __name__ == "__main__":
     tl = Translator()
-    print(tl)
-    tl.run()
+    tl.printProperties()
+    print("")
+    tl.printCommands()
+    print("")
+    tl.printLanguages()
+
+    while True:
+        com = []
+        inp = input("\nCommand: ").split(" ")
+        print()
+        com.append(inp[0])
+        args = ""
+        for i in range(1, len(inp)):
+            args = args + " " + inp[i]
+            if args != "":
+                args = args[1:]
+                com.append(args)
+
+        if com[0] == "autodir":
+            tl.autodir()
+            tl.printProperties()
+        elif com[0] == "dir":
+            if platform.system() == 'Linux':
+                if com[1][-1:] != "/":
+                    com[1] += "/"
+            elif platform.system() == 'Windows':
+                if com[1][-1:] != "\\":
+                    com[1] += "\\"
+            if os.path.exists(com[1]):
+                tl.dir = com[1]
+                tl.printProperties()
+            else:
+                print("    ERROR: The path is not available!\n           Use \\\\ on Windows and / on Linux. ")
+                continue
+        elif com[0] == "autofile":
+            lastfile = tl.file
+            if tl.autofile() == False:
+                tl.file = lastfile
+                print("    ERROR: There is no .srt file.")
+            else:
+                tl.printProperties()
+                continue
+        elif com[0] == "file":
+            if args[-4:] != ".srt":
+                print("    ERROR: This is not an .srt file.")
+                continue
+            try:
+                open(tl.dir + args)
+                tl.file = args
+                tl.printProperties()
+                continue
+            except:
+                print("    ERROR: Can't access file.")
+                continue
+        elif com[0] == "fromlang":
+            if args.upper() in ['DE', 'EN', 'FR', 'ES', 'IT', 'NL', 'PL']:
+                tl.fromlang = args.upper()
+                tl.printProperties()
+                continue
+            elif args.lower() == "auto":
+                tl.fromlang = "auto"
+                tl.printProperties()
+                continue
+            else:
+                print("    ERROR: Unavailable language\n")
+                tl.printLanguages()
+                continue
+        elif com[0] == "tolang":
+            if args.upper() in ['DE', 'EN', 'FR', 'ES', 'IT', 'NL', 'PL']:
+                tl.tolang = args.upper()
+                tl.printProperties()
+                continue
+            else:
+                print("    ERROR: Unavailable language.\n")
+                tl.printLanguages()
+                continue
+        elif com[0] == "run":
+            print("    Startung translation of", tl)
+            tl.run()
+            exit()
+        elif com[0] == "show":
+            tl.printProperties()
+            continue
+        elif com[0] == "langs":
+            tl.printLanguages()
+            continue
+        else:
+            print("    ERROR: Invalid command.\n")
+            tl.printCommands()
+            continue
