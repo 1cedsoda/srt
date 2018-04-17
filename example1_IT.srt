@@ -1,13 +1,13 @@
 1
 00:00:05,569 --> 00:00:07,569
-This is an example!
+Questo è un esempio!
 
 2
 00:00:07,820 --> 00:00:11,940
-With this script you can
-translate
+Con questo script è possibile
+tradurre
 
 3
 00:00:11,940 --> 00:00:13,740
-srt files to different
-languages.
+i file srt in
+diverse lingue.

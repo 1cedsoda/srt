@@ -1,0 +1,13 @@
+1
+00:00:05,569 --> 00:00:07,569
+Dies ist ein Beispiel!
+
+2
+00:00:07,820 --> 00:00:11,940
+Mit diesem Skript können Sie
+srt-Dateien
+
+3
+00:00:11,940 --> 00:00:13,740
+in verschiedene Sprachen übersetzen.
+ 
